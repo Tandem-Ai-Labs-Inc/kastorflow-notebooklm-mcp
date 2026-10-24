@@ -1,0 +1,42 @@
+{
+  "name": "kastorflow-notebooklm-mcp",
+  "version": "1.0.0",
+  "description": "KastorFlow NotebookLM MCP: a free, local MCP server for NotebookLM (Gemini Notebook). Connect Claude, Cursor and other AI agents to your notebooks through the KastorFlow Chrome extension. Not affiliated with Google.",
+  "license": "Apache-2.0",
+  "homepage": "https://kastorflow.com",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Tandem-Ai-Labs-Inc/kastorflow-notebooklm-mcp.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Tandem-Ai-Labs-Inc/kastorflow-notebooklm-mcp/issues"
+  },
+  "keywords": [
+    "notebooklm",
+    "notebooklm-mcp",
+    "notebooklm-api",
+    "gemini-notebook",
+    "mcp",
+    "mcp-server",
+    "model-context-protocol",
+    "claude",
+    "cursor",
+    "ai-agents",
+    "kastorflow"
+  ],
+  "bin": {
+    "kastorflow-notebooklm-mcp": "bin/kastorflow-notebooklm-mcp.mjs"
+  },
+  "files": [
+    "bin/",
+    "src/",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/server": "2.1.0"
+  }
+}
