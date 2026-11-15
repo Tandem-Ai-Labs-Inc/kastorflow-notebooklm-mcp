@@ -41,8 +41,13 @@ if (!command || command === 'serve') {
   }
 } else if (command === 'uninstall') {
   const setup = require('../src/setup.cjs');
-  const done = setup.uninstall(rest);
-  process.stdout.write(done.removed.length ? 'Removed:\n' + done.removed.map((r) => '  ' + r).join('\n') + '\n' : 'Nothing was registered.\n');
+  try {
+    const done = setup.uninstall(rest);
+    process.stdout.write(done.removed.length ? 'Removed:\n' + done.removed.map((r) => '  ' + r).join('\n') + '\n' : 'Nothing was registered.\n');
+  } catch (err) {
+    process.stderr.write((err instanceof Error ? err.message : String(err)) + '\n');
+    process.exit(1);
+  }
 } else {
   process.stderr.write('Unknown command "' + command + '". Use: setup, doctor, uninstall, or no command to serve MCP.\n');
   process.exit(2);

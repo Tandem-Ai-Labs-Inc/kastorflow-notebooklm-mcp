@@ -3,9 +3,8 @@
 **A free, local MCP server for NotebookLM (now Gemini Notebook).** Connect Claude Desktop, Claude Code, Cursor or any
 other MCP client to your notebooks through the [KastorFlow](https://kastorflow.com) Chrome extension.
 
-> **Status:** this works with the next KastorFlow update, which turns AI agents on. The KastorFlow version in the
-> Chrome Web Store today can't connect to it yet, and the npm package `kastorflow-notebooklm-mcp` is published with that update.
-> Watch this repository for the release.
+> **Status:** works with KastorFlow 2.3.0 or later from the Chrome Web Store (Settings → AI agents), and the npm
+> package `kastorflow-notebooklm-mcp` is published.
 
 Google has no public API for notebooklm.google.com. kastorflow-notebooklm-mcp is an unofficial, local way in for AI agents: it runs on
 your computer, and every call goes through the KastorFlow extension in your own signed-in Chrome. Your agent can list
@@ -34,7 +33,9 @@ installing the full one replaces this one's.
 
 ## Set up
 
-1. **Install the bridge once** (Node.js 20 or later): `npx kastorflow-notebooklm-mcp setup`
+1. **Install the bridge once** (Node.js 20 or later): `npx kastorflow-notebooklm-mcp setup`. On Windows, run it from Command Prompt or
+   PowerShell opened from the Start menu, not from a terminal inside Claude Desktop (the Microsoft Store version keeps
+   its own copy of the registry, which Chrome never sees).
 2. **Connect an agent in KastorFlow:** Settings → AI agents → Connect an agent. Choose the notebooks and what the agent
    may do; KastorFlow shows the setup for your agent app.
 3. **Add it to your agent app**, with `kastorflow-notebooklm-mcp` in place of `kastorflow-mcp`:
@@ -54,8 +55,11 @@ installing the full one replaces this one's.
    }
    ```
 
-   On Windows use `"command": "cmd"` and `"args": ["/c", "npx", "-y", "kastorflow-notebooklm-mcp"]`. Claude Code:
+   On Windows use `"command": "cmd"` and `"args": ["/c", "npx", "-y", "kastorflow-notebooklm-mcp"]`. Claude Desktop rewrites its
+   config while it runs: open it with Settings → Developer → Edit Config, then quit Claude completely (on Windows,
+   right-click its tray icon → Quit), paste, save, and open Claude again. Claude Code:
    `claude mcp add kastorflow -e KASTORFLOW_PROFILE_NONCE=… -e KASTORFLOW_PAIRING_TOKEN=… -- npx -y kastorflow-notebooklm-mcp`
+   (on Windows: `-- cmd /c npx -y kastorflow-notebooklm-mcp`)
 
 Chrome must be open with KastorFlow for calls to work.
 

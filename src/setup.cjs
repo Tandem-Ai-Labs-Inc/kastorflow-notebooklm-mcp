@@ -30,8 +30,40 @@ const BROWSERS = {
 
 /**
  * @typedef {{ extensionId: string, browsers: string[], platform: string, home: string, env: NodeJS.ProcessEnv,
- *   nodePath: string, dir: string, run: (file: string, args: string[]) => string }} SetupOptions
+ *   nodePath: string, dir: string, run: (file: string, args: string[]) => string, hostApp: () => string }} SetupOptions
  */
+
+/**
+ * Windows: the Store-installed Claude Desktop runs the programs it starts (its Code tab, its terminals) behind a
+ * private copy of the user's registry. A registration written from there never reaches Chrome, and a check from there
+ * reads the same copy and says all is well (found 2026-11-15). Looks up this process's parents, read-only.
+ * @returns {string} 'Claude Desktop' when one of them is the Store app, else ''
+ */
+function storeAppParent() {
+  if (process.platform !== 'win32') return '';
+  const script = '$id = ' + process.pid + '; for ($i = 0; $i -lt 16 -and $id; $i++) { '
+    + '$p = Get-CimInstance Win32_Process -Filter "ProcessId=$id"; if (-not $p) { break }; '
+    + "if ($p.ExecutablePath -like '*\\WindowsApps\\Claude_*\\Claude.exe') { 'Claude Desktop'; break }; $id = $p.ParentProcessId }";
+  try {
+    return String(execFileSync('powershell.exe', ['-NoProfile', '-NonInteractive', '-Command', script],
+      { windowsHide: true, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'], timeout: 20000 })).trim();
+  } catch (_e) {
+    return '';
+  }
+}
+
+/**
+ * @param {SetupOptions} o @param {string} command
+ * @returns {string} why this command can't work from here, or '' when it can
+ */
+function outsideStoreApp(o, command) {
+  if (o.platform !== 'win32') return '';
+  const app = o.hostApp();
+  return app
+    ? 'This terminal runs inside ' + app + ', which keeps its own copy of the Windows registry, so Chrome would not see '
+      + 'the KastorFlow companion. Open Command Prompt from the Start menu and run: npx kastorflow-notebooklm-mcp ' + command
+    : '';
+}
 
 /**
  * @param {string[]} argv
@@ -62,6 +94,7 @@ function options(argv, over) {
     nodePath: process.execPath,
     dir: paths.installDir({ platform, env, home }),
     run: (/** @type {string} */ file, /** @type {string[]} */ args) => execFileSync(file, args, { windowsHide: true, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }),
+    hostApp: storeAppParent,
   }, over || {});
 }
 
@@ -100,6 +133,8 @@ function hostManifest(o) {
  */
 function install(argv, over) {
   const o = options(argv, over);
+  const blocked = outsideStoreApp(o, 'setup');
+  if (blocked) throw new Error(blocked);
   fs.mkdirSync(o.dir, { recursive: true });
   for (const file of HOST_FILES) fs.copyFileSync(path.join(__dirname, file), path.join(o.dir, file));
   const launcher = launcherPath(o);
@@ -135,6 +170,8 @@ function install(argv, over) {
  */
 function uninstall(argv, over) {
   const o = options(argv, over);
+  const blocked = outsideStoreApp(o, 'uninstall');
+  if (blocked) throw new Error(blocked);
   /** @type {string[]} */
   const removed = [];
   for (const browser of o.browsers) {
@@ -157,6 +194,8 @@ function uninstall(argv, over) {
  */
 function doctor(argv, over) {
   const o = options(argv, over);
+  const blocked = outsideStoreApp(o, 'doctor');
+  if (blocked) return { ok: false, lines: ['FIX  ' + blocked] };
   /** @type {string[]} */
   const lines = [];
   let ok = true;

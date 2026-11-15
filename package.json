@@ -1,6 +1,6 @@
 {
   "name": "kastorflow-notebooklm-mcp",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "KastorFlow NotebookLM MCP: a free, local MCP server for NotebookLM (Gemini Notebook). Connect Claude, Cursor and other AI agents to your notebooks through the KastorFlow Chrome extension. Not affiliated with Google.",
   "license": "Apache-2.0",
   "homepage": "https://kastorflow.com",
